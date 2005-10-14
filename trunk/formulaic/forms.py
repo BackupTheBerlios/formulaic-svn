@@ -5,8 +5,8 @@ from odict import OrderedDict
 from xml.sax.saxutils import quoteattr, escape
 from string import Template
 
-class SimpleForm(OrderedDict):
-    "A basic formencode-enabled html form"
+class BaseForm(OrderedDict):
+    "A basic formencode-enabled html form, designed to be easily customizable through subclassing"
 
 #   Settings for rendering the entire form
     fieldSeparator = '\n\n' 
@@ -86,7 +86,8 @@ $error''')
         labelStr = self.labelTpl.substitute(label=label)
         return template.substitute(label=labelStr, widget=widget, error=errorStr).strip()
 
-class TableForm(SimpleForm):
+class TableForm(BaseForm):
+    "A form that is rendered in a simple 3-column html table (label, widget, error)"
 
     formTpl = Template('''\
 <form $formAttributes>
@@ -96,7 +97,6 @@ $fields
 
 </table>
 </form>''')
-    fieldSeparator = '\n\n'
 
     labelTpl = Template('$label')
     errorTpl = Template('$errorMsg')
