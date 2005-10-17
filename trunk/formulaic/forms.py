@@ -10,22 +10,22 @@ class BaseForm(OrderedDict):
 
 #   Settings for rendering the entire form
     fieldSeparator = '\n\n' 
-    formTpl = Template('''\
+    formTpl = '''\
 <form $formAttributes>
 
 $fields
 
-</form>''') 
+</form>''' 
     footer = Template('<input type="submit" value="$submitLabel"/>')
 
 #   Settings for rendering each field
-    labelTpl = Template('<label>$label</label>')
-    errorTpl = Template('<span class="error">$errorMsg</span>')
-    normalFieldTpl = Template('''\
+    labelTpl = '<label>$label</label>'
+    errorTpl = '<span class="error">$errorMsg</span>'
+    normalFieldTpl = '''\
 $label
 $widget
-$error''')
-    bareFieldTpl = Template('$widget')
+$error'''
+    bareFieldTpl = '$widget'
 
     def __init__(self, method='POST', action='', submitLabel='Submit', attrs=None):
         "Initialize a new, empty form"
@@ -68,7 +68,7 @@ $error''')
 
         fields = self.fieldSeparator.join(renderedFields)
         formAttributes = self.renderAttributes(self.attrs)
-        return self.formTpl.substitute(fields=fields, formAttributes=formAttributes)
+        return Template(self.formTpl).substitute(fields=fields, formAttributes=formAttributes)
 
     def renderField(self, name, value, error=None):
         "Render the complelete html of a field"
@@ -82,45 +82,45 @@ $error''')
             template = self.bareFieldTpl
         
         if error:
-            errorStr = self.errorTpl.substitute(errorMsg=error)
+            errorStr = Template(self.errorTpl).substitute(errorMsg=error)
         else:
             errorStr = ''
 
-        labelStr = self.labelTpl.substitute(label=label)
-        return template.substitute(label=labelStr, widget=widgetStr, error=errorStr).strip()
+        labelStr = Template(self.labelTpl).substitute(label=label)
+        return Template(template).substitute(label=labelStr, widget=widgetStr, error=errorStr).strip()
 
     def renderFooter(self):
         "Render the footer (submit button) for the form"
         submitLabel = escape(self.submitLabel).replace('"', '&quot;')
-        widgetStr = self.footer.substitute(submitLabel=submitLabel)
-        return self.normalFieldTpl.substitute(label='', widget=widgetStr, error='')
+        widgetStr = Template(self.footer).substitute(submitLabel=submitLabel)
+        return Template(self.normalFieldTpl).substitute(label='', widget=widgetStr, error='')
 
 class TableForm(BaseForm):
     "A form that is rendered in a simple 3-column html table (label, widget, error)"
 
-    formTpl = Template('''\
+    formTpl = '''\
 <form $formAttributes>
 <table $tableAttributes>
 
 $fields
 
 </table>
-</form>''')
+</form>'''
 
-    normalFieldTpl = Template('<tr><td>$label</td><td>$widget</td><td>$error</td></tr>')
-    bareFieldTpl = Template('<tr><td>$widget</td></tr>')
+    normalFieldTpl = '<tr><td>$label</td><td>$widget</td><td>$error</td></tr>'
+    bareFieldTpl = '<tr><td>$widget</td></tr>'
     
     tableAttrs = {'border':'0', 'cellpadding':'0', 'cellspacing':'0'}
 
     def __init__(self, method='POST', action='', formAttrs=None, tableAttrs=None, submitLabel='Submit'):
         BaseForm.__init__(self, method, action, attrs=formAttrs, submitLabel=submitLabel)
         self.tableAttrs.update(tableAttrs or {})
-        self.formTpl = Template(self.formTpl.safe_substitute(tableAttributes=self.renderAttributes(self.tableAttrs)))
+        self.formTpl = Template(self.formTpl).safe_substitute(tableAttributes=self.renderAttributes(self.tableAttrs)))
 
 class RequirementsForm(BaseForm):
     "A form that autodetects whether fields are required, and renders their labels differently if so"
 
-    reqLabelTpl = Template('<label class="required">$label</label>')
+    reqLabelTpl = '<label class="required">$label</label>'
 
     def renderField(self, name, value, error=None):
         field = self[name]
@@ -133,7 +133,7 @@ class RequirementsForm(BaseForm):
             template = self.bareFieldTpl
         
         if error:
-            errorStr = self.errorTpl.substitute(errorMsg=error)
+            errorStr = Template(self.errorTpl).substitute(errorMsg=error)
         else:
             errorStr = ''
 
@@ -145,9 +145,9 @@ class RequirementsForm(BaseForm):
             req = True
 
         if not req:
-            labelStr = self.labelTpl.substitute(label=label)
+            labelStr = Template(self.labelTpl).substitute(label=label)
         else:
-            labelTpl = self.reqLabelTpl.substitute(label=label)
+            labelTpl = Template(self.reqLabelTpl).substitute(label=label)
 
-        return template.substitute(label=labelStr, widget=widgetStr, error=errorStr).strip()
+        return Template(template.substitute(label=labelStr, widget=widgetStr, error=errorStr).strip()
 
