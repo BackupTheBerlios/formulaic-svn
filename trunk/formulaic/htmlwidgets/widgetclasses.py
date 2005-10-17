@@ -6,6 +6,8 @@ from xml.sax.saxutils import quoteattr, escape
 class Widget:
     "Abstract base class for widgets to inheirit from... handles labels, default values"
 
+#   A place to put extra information about how to render this widget
+
     def __init__(self, label, default=None):
         self.label = label
         self.default = default
@@ -20,7 +22,7 @@ class Widget:
     def __call__(self, name, value):
         if value is None:
             value = getattr(self, 'default', None)
-        return self._render(name, value)
+        return self._render(name, value or '')
 
 class Input(Widget):
     "A callable that can be used to render html input elements of any type"
@@ -49,7 +51,11 @@ class Custom(Widget):
 class CheckboxInput(Input):
     "A callable that renders html checkbox input elements"
 
-    def _render(self, name, value):
+#   This class overrides __call__ directly, instead of _render, because
+#   checkbnox widgets should not have default value functionality... if the
+#   default value is true, it will be impossible for the user to submit it as
+#   unchecked
+    def __call__(self, name, value):
         if value:
             attrString = self.renderAttributes(self.attrs, name=name, checked='checked')
         else:
