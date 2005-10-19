@@ -3,6 +3,10 @@
 import copy
 from xml.sax.saxutils import quoteattr, escape
 
+__doc__ '''Implementation details for the htmlwidgets package.  Doesn't need to
+be accessed directly when using the provided widget functions, but possibly
+useful when writing your own widgets.'''
+
 class Widget:
     "Abstract base class for widgets to inheirit from... handles labels, default values"
 

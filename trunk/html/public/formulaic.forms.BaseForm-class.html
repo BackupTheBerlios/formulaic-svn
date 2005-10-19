@@ -1,0 +1,640 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>formulaic.forms.BaseForm</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="formulaic-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        <a href="formulaic-module.html">Package&nbsp;formulaic</a> ::
+        <a href="formulaic.forms-module.html">Module&nbsp;forms</a> ::
+        Class&nbsp;BaseForm
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[<a href="../private/formulaic.forms.BaseForm-class.html">show&nbsp;private</a>&nbsp;|&nbsp;hide&nbsp;private]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="formulaic.forms.BaseForm-class.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF CLASS DESCRIPTION =========== -->
+<h2 class="class">Class BaseForm</h2>
+
+<pre class="base-tree">
+<a href="__builtin__.object-class.html"><code>object</code></a> --+        
+         |        
+      <a href="__builtin__.dict-class.html"><code>dict</code></a> --+    
+             |    
+   <a href="../private/formulaic.odict.OrderedDict-class.html"><code>OrderedDict</code></a> --+
+                 |
+                <b>BaseForm</b>
+</pre><br />
+
+<dl><dt><b>Known Subclasses:</b></dt>
+<dd>
+    <a href="formulaic.forms.RequirementsForm-class.html"><code>RequirementsForm</code></a>,
+    <a href="formulaic.forms.TableForm-class.html"><code>TableForm</code></a></dd></dl>
+
+<hr/>
+
+<p>A basic formencode-enabled html form, designed to be easily 
+customizable through subclassing.</p>
+<p>BaseForm is an <b>ordered dictionary</b>. That means that it 
+implements the regular python dict interface, but (unlike standard python 
+dicts), remembers the order in which items were added. The dict elements 
+are the various fields of the form, so this means that to display the 
+form's fields in a particular order, you should add those fields to the 
+form in the order they should be displayed. You can set the order 
+manually by setting the &quot;sequence&quot; element too.</p>
+<p>The creation of a BaseForm instance also causes a formencode schema 
+instance to be created, which is accessible via the &quot;schema&quot; 
+attribute. The BaseForm instance and schema instance are linked, so that 
+any fields that are added to the form are also added to the schema (and 
+vice versa).</p>
+<p>BaseForm is intended to be a minimalistic implementation of a 
+formulaic form that more sophisticated forms can subclass. But its still 
+quite customizable as-is, and is quite suitable for real usage.</p>
+<p>Much of the output markup can be customized via various class 
+variables containing template strings. Like typical python class 
+variables, these can be accessed both at the class and instance level. 
+So, to customize all forms (at least, all forms derived from BaseForm), 
+set the class variables (i.e. &quot;BaseForm.labelTpl&quot;), and to 
+customize one form instance, set the instance variables (i.e. 
+&quot;form.labelTpl&quot;). These templates are strings used to 
+initialize python 2.4 string templates, with the default &quot;$&quot; 
+delimiter for template parameters. Again, to be clear, these template 
+class variables are the strings used to create template instances, 
+<i>not</i> template instances themselves.</p>
+Fields are rendered by the <i>renderField</i> method, and fields are 
+rendered in one of two modes; &quot;bare&quot; mode is used if the field 
+object has a &quot;renderBare&quot; attribute with a true value, and 
+&quot;normal&quot; mode is used otherwise. In &quot;bare&quot; mode, the 
+field is rendered without a label or error message. &quot;bare&quot; mode 
+should primarily be interpreted to mean &quot;render this however hidden 
+fields should be rendered&quot;, as that is the special case it was 
+created to address, but it can be used with any field that requires extra 
+control over layout.
+<hr/>
+
+
+<!-- =========== START OF METHOD SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Method Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="formulaic.forms.BaseForm-class.html#__init__" class="summary-sig-name"><code>__init__</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>method</span>,
+          <span class=summary-sig-arg>action</span>,
+          <span class=summary-sig-arg>submitLabel</span>,
+          <span class=summary-sig-arg>attrs</span>)</span></code>
+<br />
+Initialize a new, empty form instance.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="formulaic.forms.BaseForm-class.html#render" class="summary-sig-name"><code>render</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>values</span>,
+          <span class=summary-sig-arg>errors</span>)</span></code>
+<br />
+Render the entire form.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="formulaic.forms.BaseForm-class.html#renderAttributes" class="summary-sig-name"><code>renderAttributes</code></a>(<span class=summary-sig-arg>attrs</span>,
+          <span class="summary-sig-kwarg">**kwargs</span>)</span></code>
+<br />
+Render a dictionary of an element's attribute names and values into a 
+string, with proper escaping of special characters.    <i>(Static method)</i>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="formulaic.forms.BaseForm-class.html#renderField" class="summary-sig-name"><code>renderField</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>name</span>,
+          <span class=summary-sig-arg>value</span>,
+          <span class=summary-sig-arg>error</span>)</span></code>
+<br />
+Render the complete html of one of this form's fields</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="formulaic.forms.BaseForm-class.html#renderFooter" class="summary-sig-name"><code>renderFooter</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Render the footer (submit button) for the form</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from dict</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.dict-class.html#__contains__" class="summary-sig-name"><code>__contains__</code></a>(<span class=summary-sig-arg>D</span>,
+          <span class=summary-sig-arg>k</span>)</span></code>
+<br />
+D.__contains__(k) -&gt; True if D has a key k, else False</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.dict-class.html#__ge__" class="summary-sig-name"><code>__ge__</code></a>(<span class=summary-sig-arg>x</span>,
+          <span class=summary-sig-arg>y</span>)</span></code>
+<br />
+x.__ge__(y) &lt;==&gt; x&gt;=y</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.dict-class.html#__getattribute__" class="summary-sig-name"><code>__getattribute__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__getattribute__('name') &lt;==&gt; x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.dict-class.html#__getitem__" class="summary-sig-name"><code>__getitem__</code></a>(<span class=summary-sig-arg>x</span>,
+          <span class=summary-sig-arg>y</span>)</span></code>
+<br />
+x.__getitem__(y) &lt;==&gt; x[y]</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.dict-class.html#__gt__" class="summary-sig-name"><code>__gt__</code></a>(<span class=summary-sig-arg>x</span>,
+          <span class=summary-sig-arg>y</span>)</span></code>
+<br />
+x.__gt__(y) &lt;==&gt; x&gt;y</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.dict-class.html#__hash__" class="summary-sig-name"><code>__hash__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__hash__() &lt;==&gt; hash(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.dict-class.html#__le__" class="summary-sig-name"><code>__le__</code></a>(<span class=summary-sig-arg>x</span>,
+          <span class=summary-sig-arg>y</span>)</span></code>
+<br />
+x.__le__(y) &lt;==&gt; x&lt;=y</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.dict-class.html#__len__" class="summary-sig-name"><code>__len__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__len__() &lt;==&gt; len(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.dict-class.html#__lt__" class="summary-sig-name"><code>__lt__</code></a>(<span class=summary-sig-arg>x</span>,
+          <span class=summary-sig-arg>y</span>)</span></code>
+<br />
+x.__lt__(y) &lt;==&gt; x&lt;y</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.dict-class.html#__ne__" class="summary-sig-name"><code>__ne__</code></a>(<span class=summary-sig-arg>x</span>,
+          <span class=summary-sig-arg>y</span>)</span></code>
+<br />
+x.__ne__(y) &lt;==&gt; x!=y</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.dict-class.html#get" class="summary-sig-name"><code>get</code></a>(<span class=summary-sig-arg>D</span>,
+          <span class=summary-sig-arg>k</span>,
+          <span class=summary-sig-arg>d</span>)</span></code>
+<br />
+D.get(k[,d]) -&gt; D[k] if k in D, else d.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.dict-class.html#has_key" class="summary-sig-name"><code>has_key</code></a>(<span class=summary-sig-arg>D</span>,
+          <span class=summary-sig-arg>k</span>)</span></code>
+<br />
+D.has_key(k) -&gt; True if D has a key k, else False</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from object</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__delattr__" class="summary-sig-name"><code>__delattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__delattr__('name') &lt;==&gt; del x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce__" class="summary-sig-name"><code>__reduce__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce_ex__" class="summary-sig-name"><code>__reduce_ex__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__setattr__" class="summary-sig-name"><code>__setattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__setattr__('name', value) &lt;==&gt; x.name = value</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from type</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.type-class.html#__new__" class="summary-sig-name"><code>__new__</code></a>(<span class=summary-sig-arg>T</span>,
+          <span class=summary-sig-arg>S</span>,
+          <span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+T.__new__(S, ...) -&gt; a new object with type S, a subtype of T</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.type-class.html#fromkeys" class="summary-sig-name"><code>fromkeys</code></a>(<span class=summary-sig-arg>dict</span>,
+          <span class=summary-sig-arg>S</span>,
+          <span class=summary-sig-arg>v</span>)</span></code>
+<br />
+v defaults to None.</td></tr>
+</table><br />
+
+
+<!-- =========== START OF CLASS VARIABLE SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Class Variable Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>str</code></font></td>
+<td><b><a href="formulaic.forms.BaseForm-class.html#bareFieldTpl"><code>bareFieldTpl</code></a></b>: the template for rendering fields in &quot;bare&quot; mode.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>str</code></font></td>
+<td><b><a href="formulaic.forms.BaseForm-class.html#errorTpl"><code>errorTpl</code></a></b>: the template for field error messages.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>str</code></font></td>
+<td><b><a href="formulaic.forms.BaseForm-class.html#fieldSeparator"><code>fieldSeparator</code></a></b>: the string that will be used to join all fields, normal or bare or 
+whatever (because it takes no parameters, it is just a string, not a 
+template).</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>Template</code></font></td>
+<td><b><a href="formulaic.forms.BaseForm-class.html#footer"><code>footer</code></a></b> = <span title="&lt;string.Template object at 0xb7b8a64c&gt;"><code>&lt;string.Template&nbsp;object&nbsp;at&nbsp;0xb7b8a64c&gt;          </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>str</code></font></td>
+<td><b><a href="formulaic.forms.BaseForm-class.html#formTpl"><code>formTpl</code></a></b>: The template for the entire form.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>str</code></font></td>
+<td><b><a href="formulaic.forms.BaseForm-class.html#labelTpl"><code>labelTpl</code></a></b>: the template for field labels.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>str</code></font></td>
+<td><b><a href="formulaic.forms.BaseForm-class.html#normalFieldTpl"><code>normalFieldTpl</code></a></b>: the template for rendering fields in &quot;normal&quot; mode (as 
+opposed to &quot;bare&quot; mode).</td></tr>
+</table><br />
+
+
+<!-- =========== START OF INSTANCE METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Instance Method Details</th></tr>
+</table>
+
+<a name="__init__"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">__init__</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>method</span>=<span class=sig-default>'POST'</span>,
+          <span class=sig-arg>action</span>=<span class=sig-default>''</span>,
+          <span class=sig-arg>submitLabel</span>=<span class=sig-default>'Submit'</span>,
+          <span class=sig-arg>attrs</span>=<span class=sig-default>None</span>)</span>
+    <br /><i>(Constructor)</i>
+  </h3>
+  Initialize a new, empty form instance.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>method</b></code> -
+         the form method attribute (i.e. &quot;GET&quot; or 
+        &quot;POST&quot;)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>action</b></code> -
+         the form action attribute. This will often be the empty
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str string (&quot;self-submission&quot;), for simplified 
+              validation and error message display.)</i>
+      <dd><code><b>submitLabel</b></code> -
+         the text of the final submit button.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>attrs</b></code> -
+         a dictionary of attribute names and values for the form 
+        element (i.e. the &quot;class&quot; or &quot;id&quot; 
+        attributes). The <i>method</i> and <i>action</i> attributes can 
+        be set here, or through their parameters (which are provided 
+        simply as a convenience; if set on both, the values here take 
+        precedence.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=dict)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Overrides:</b></dt>
+      <dd><a href="../private/formulaic.odict.OrderedDict-class.html#__init__"><code>formulaic.odict.OrderedDict.__init__</code></a></dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="render"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">render</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>values</span>,
+          <span class=sig-arg>errors</span>)</span>
+  </h3>
+  Render the entire form. Typically, this will be called after 
+  validation of the submitted values has been attempted and has failed 
+  (if it had succeeded, there would typically be no need to display the 
+  form again).
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>values</b></code> -
+         a dict of values submitted by the user. If formencode's 
+        conventions for organizing inputs into lists and dicts are being 
+        used, this processing should be done on the dict before this 
+        method is called, since the method does not do such 
+        transformation itself. &#64;type values: dict &#64;param errors: 
+        a dict of error messages generated during validation. Keys should 
+        match the current keys of this BaseForm instance, and values 
+        should be objects that can be rendered into usable error messages 
+        by the python str() function. Typically, you will want to pass 
+        the value of the <i>error_dict</i> attribute of a formencode 
+        Invalid exception raised by validating this form (when formencode 
+        schema objects are unable to validate, the Invalid exception that 
+        is raised contains a dict mapping the field name to other Invalid 
+        objects.
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        the string rendering of the form
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="renderField"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">renderField</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>name</span>,
+          <span class=sig-arg>value</span>,
+          <span class=sig-arg>error</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+  Render the complete html of one of this form's fields
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>name</b></code> -
+         the name of the field to be rendered (i.e. its key within this 
+        form object)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>value</b></code> -
+         the value that the field should contain when rendered (i.e. 
+        the value that was submitted by the user). None represents the 
+        field's default value. If not None, this parameter is typically a 
+        string, though it doesn't have to be.
+      <dd><code><b>error</b></code> -
+         the error message that the field should be rendered with. None 
+        indicates that it should be rendered without an error.
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        the string of the rendered html of the field.
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="renderFooter"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">renderFooter</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Render the footer (submit button) for the form
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        the string of the rendered html of the form footer. Typically, 
+        this will be a submit button, rendered similarly to a normal 
+        field.
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF STATIC METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Static Method Details</th></tr>
+</table>
+
+<a name="renderAttributes"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">renderAttributes</span>(<span class=sig-arg>attrs</span>=<span class=sig-default>None</span>,
+          <span class="sig-kwarg">**kwargs</span>)</span>
+  </h3>
+  Render a dictionary of an element's attribute names and values into 
+  a string, with proper escaping of special characters. Examples:
+<pre class="doctestblock">
+<span class="py-src"><span class="py-prompt">&gt;&gt;&gt; </span>forms.BaseForm.renderAttributes({<span class="py-string">'class'</span>:<span class="py-string">'myclass'</span>, <span class="py-string">'id'</span>:<span class="py-string">'myelement'</span>})</span>
+<span class="py-output">'class=&quot;myclass&quot; id=&quot;myelement&quot;'</span>
+
+<span class="py-src"><span class="py-prompt">&gt;&gt;&gt; </span>forms.BaseForm.renderAttributes({<span class="py-string">'id'</span>:<span class="py-string">'ben&amp;jerrys'</span>})</span>
+<span class="py-output">'id=&quot;ben&amp;amp;jerrys&quot;'</span>
+
+<span class="py-src"><span class="py-prompt">&gt;&gt;&gt; </span>forms.BaseForm.renderAttributes({<span class="py-string">'first'</span>:<span class="py-string">'a'</span>}, second=<span class="py-string">'b'</span>)</span>
+<span class="py-output">'first=&quot;a&quot; second=&quot;b&quot;'</span></pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>attrs</b></code> -
+         a mapping of attribute names (i.e. &quot;class&quot;) to 
+        values (i.e. &quot;myclass&quot;). Both keys and values should be 
+        strings.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=dict)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        an attribute string that is ready to be placed inside an 
+        element tag
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF CLASS VARIABLE DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Class Variable Details</th></tr>
+</table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="bareFieldTpl"></a>
+<h3>bareFieldTpl</h3>
+the template for rendering fields in &quot;bare&quot; mode. Takes one 
+parameter: <i>$widget</i>.
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>str</code>
+
+      </dd>
+<span title="'$widget'">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="variable-quote">'</span>$widget<span class="variable-quote">'</span>                                                              </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="errorTpl"></a>
+<h3>errorTpl</h3>
+the template for field error messages. Takes one parameter, 
+<i>$error</i>. Note that error messages are not used when a field 
+requests to be rendered in &quot;bare&quot; mode, and that when no error 
+is provided for a field, the empty string will be used instead of the 
+output of this template.
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>str</code>
+
+      </dd>
+<span title="'&lt;span class=&quot;error&quot;&gt;$error&lt;/span&gt;'">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="variable-quote">'</span>&lt;span class=&quot;error&quot;&gt;$error&lt;/span&gt;<span class="variable-quote">'</span>                                    </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="fieldSeparator"></a>
+<h3>fieldSeparator</h3>
+the string that will be used to join all fields, normal or bare or 
+whatever (because it takes no parameters, it is just a string, not a 
+template).
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>str</code>
+
+      </dd>
+<span title="'\n\n'">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="variable-quote">'''</span>
+
+<span class="variable-quote">'''</span>                                                                    </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="footer"></a>
+<h3>footer</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>Template</code>
+
+      </dd>
+<span title="&lt;string.Template object at 0xb7b8a64c&gt;">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+&lt;string.Template object at 0xb7b8a64c&gt;                                 </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="formTpl"></a>
+<h3>formTpl</h3>
+The template for the entire form. Accepts three template parameters: 
+<i>$fields</i> (the final, joined rendering of all the fields of the 
+form), <i>$formAttributes</i> (a single, joined string rendering of all 
+the html attributes to be applied to the form element, such as 
+&quot;action&quot;), and <i>$footer</i>, the rendering of the form 
+footer, which is often just a submit button.
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>str</code>
+
+      </dd>
+<span title="'&lt;form $formAttributes&gt;\n\n$fields\n\n$footer\n\n&lt;/form&gt;'">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="variable-quote">'''</span>&lt;form $formAttributes&gt;
+
+$fields
+
+$footer
+
+&lt;/form&gt;<span class="variable-quote">'''</span>                                                             </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="labelTpl"></a>
+<h3>labelTpl</h3>
+the template for field labels. Takes one parameter, <i>$label</i>: the 
+string label of the field. Note that labels are not used when field 
+request to be rendered in &quot;bare&quot; mode, and that when a field 
+has a label value of None, the empty string will be used instead of the 
+output of this template.
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>str</code>
+
+      </dd>
+<span title="'&lt;label&gt;$label&lt;/label&gt;'">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="variable-quote">'</span>&lt;label&gt;$label&lt;/label&gt;<span class="variable-quote">'</span>                                                </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="normalFieldTpl"></a>
+<h3>normalFieldTpl</h3>
+the template for rendering fields in &quot;normal&quot; mode (as 
+opposed to &quot;bare&quot; mode). Takes three parameters: <i>$label</i>, 
+<i>$widget</i> and <i>$error</i>.
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>str</code>
+
+      </dd>
+<span title="'$label\n$widget\n$error'">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="variable-quote">'''</span>$label
+$widget
+$error<span class="variable-quote">'''</span>                                                              </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="formulaic-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.0 on Wed Oct 19 01:15:11 2005</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>
