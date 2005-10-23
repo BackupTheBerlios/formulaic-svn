@@ -31,7 +31,7 @@ welcome at greg.steffensen@gmail.com .
 Overview
 =============
 
-Formulaic is fundmentally concerned with I{rendering}.  To use formulaic, you
+Formulaic is fundmentally concerned with *rendering*.  To use formulaic, you
 basically create your form once, then render it whenever a user views that
 form in her browser.  Most of the work of creating a form, in turn, is in
 describing the various fields in the form.  Forms and fields are the two
@@ -39,8 +39,8 @@ fundamental kinds of objects in the formulaic universe (note that this is
 slightly different from how FormEncode works; in FormEncode, forms (schemas) are just a
 special kind of field (validator)).
 
-So in formulaic, forms contain fields.  Specifically, forms act like I{ordered
-dictionaries} of fields, which means that they can be used like normal python
+So in formulaic, forms contain fields.  Specifically, forms act like *ordered
+dictionaries* of fields, which means that they can be used like normal python
 dictionaries.  However, unlike normal python dictionaries, they keep track of
 the order in which elements are added.  This makes it easier for you to control
 in what order fields are shown when you render the form (don't worry, if you
@@ -93,7 +93,7 @@ hello world
 --------------
 
 Lets jump right in.  The first thing to learn about formulaic is that validation
-and rendering completely separate activities.
+and rendering COMPLETELY separate activities::
 
     >>> from formencode import validators
     >>> from formulaic import forms
@@ -116,17 +116,17 @@ Ok, what's going on?  We've created a very simple form that does some very
 simple validation.  That form has one field, stored at the 'hello' key.  In
 formulaic, a field's key becomes its name its rendered with in the form.  We've
 based that field on a FormEncode validator, one that checks whether its inputs
-have a length of 5 or less.  To create the field, we used the I{TextInput} field
-transformer function.  Like all the field transformer functions, I{TextInput}
+have a length of 5 or less.  To create the field, we used the *TextInput* field
+transformer function.  Like all the field transformer functions, *TextInput*
 takes a validator object and a label, and returns a field object based on that
 validator.  The field object is basically a copy of the original validator (a
 real copy, not the original object), with one new attribute "renderer".  Once
-this field object is placed in the form, we use the form's I{smartRender} method
+this field object is placed in the form, we use the form's *smartRender* method
 to render the form.  This method takes two arguments: a dictionary of prefilled
 values for the various widgets, and a dictionary of error messages for the
 various widgets.
 
-Lets render again, with an error message this time.
+Lets render again, with an error message this time::
 
     >>> errors = {'hello':"Your mama"}
     >>> print form.render(values, errors)
@@ -144,7 +144,7 @@ That's how formulaic gets its error messages.  Despite partial integration with
 FormEncode, it doesn't do any validation itself; whether the values for
 prefilling are valid or invalid has no effect on the rendering of error
 messages.  To get our error messages dynamically from FormEncode, we have to
-explicitly validate.
+explicitly validate::
 
     >>> from formencode.api import Invalid
     >>> values = {'hello':'planet'}
@@ -163,9 +163,133 @@ explicitly validate.
 
     </form>
 
-The code above is the canonical way for formulaic to be used.  The I{Invalid}
-exception raised when FormEncode validation fails has an I{error_dict} attribute
-that is a dict mapping field names to other I{Invalid} objects.  Those internal
-I{Invalid} objects render themselves into user-friendly strings. 
+The code above is the canonical way for formulaic to be used.  The *Invalid*
+exception raised when FormEncode validation fails has an *error_dict* attribute
+that is a dict mapping field names to other *Invalid* objects.  Those internal
+*Invalid* objects render themselves into user-friendly strings.  While in
+practice you'll often want to use a try-catch block like the one above, for now
+we'll skip the validation process to save space.
 
-Lets add another field.
+Note that one side effect of splitting up validation and rendering like this is
+that if you want to do extra validation after FormEncode finishes (or if you
+don't want to use FormEncode at all), you can do whatever you want just be
+setting the values of the error dictionary parameter appropriately.
+
+Lets customize the field some more::
+
+    >>> form['hello'].default = 'world'
+    >>> form['hello'].attrs = {'style':'width:3in'}
+    >>> print form.render({}, {})
+    <form action="" method="POST">
+
+    <label>Hello</label>
+    <input style="width:3in" type="text" name="hello" value="world"/>
+
+    <input type="submit" value="Submit"/>
+
+    </form>
+
+We've introduced two more of formulaic's features.  The default attribute on
+fields does just what you'd think: it supplies a default value for rendering.
+Now, remember how we said that validation and rendering are completely separate
+activities?  That applies here too.  FormEncode offers default values too, but
+the rendering process doesn't use those at all.  In practice, if you want
+default values for your fields, you'll typically want the formulaic method.
+
+The other feature we introduced is the *attrs* attribute.  This is the simplest
+way to customize the rendering of your fields.  If you want to set html
+attribute values on your fields, you can use the attrs dictionary.  Attribute
+names and values will all be properly escaped for you.  BaseForm objects
+actually take an *attrs* parameter too, which works similarly.
+
+This is also a good time to introduce a new formulaic term: **widgets**.  In
+formulaic, a widget is the core of a field; its the actual input element that
+users use to enter their data.  In terms of rendering, fields are widgets, plus
+"window dressing" like labels and error messages.  The distinction will become
+more important when we start customizing our forms, and the way that labels and
+error messages are displayed on fields becomes variable (however, the widget portion
+for any particular field object will render the same, regardless of what kind of
+form its associated with).  Here, the *attrs* attribute customizes *widget*
+display.
+
+Customizing form rendering
+------------------------------
+
+So far, we've learned how to create field objects from validators, how to add
+them to forms, how to render forms, and how to do basic customization of the
+way that fields are rendered.  But the html that we've produced pretty much
+sucked.  It probably wouldn't integrate very well into the visual style of most
+real world sites.  If you used CSS effectively, you might be able to make it
+work, but it would be tricky, especially given Internet Explorer's poor support
+for advanced CSS selectors.  Is there a way to easily make formulaic's html
+match your site's style better?
+
+Sure.  If you examine the form object we created, you'll notice that it has
+quite a few attributes that end with the letters "Tpl"; for example, *formTpl*,
+*normalFieldTpl* and *labelTpl*.  Unsurprisingly, these all contain various
+templates for the form rendering process.  By changing them, we can change the
+way that fields (but not widgets) are rendered::
+
+    >>> form.normalFieldTpl = '<div class="formfield">\n$label \n<br/>\n$widget \n$error</div>'
+    >>> print form.render({}, {})
+    <form action="" method="POST">
+
+    <div class="formfield">
+    <label>Age</label>
+    <br/>
+    <input type="text" name="age" value=""/>
+    </div>
+
+    <div class="formfield">
+    <label>Favorite color</label>
+    <br/>
+    <select type="text" name="favcolor">
+    <option value="Red">Red</option>
+    <option value="Green">Green</option>
+    <option value="Blue">Blue</option>
+    </select>
+    </div>
+
+    <input type="hidden" name="user_id" value=""/>
+
+    <div class="formfield">
+
+    <br/>
+    <input type="submit" value="Submit"/>
+    </div>
+
+    </form>
+
+
+All of the BaseForm template attribute are used in python Template strings (a
+new class introduced in Python 2.4), and take their own set of identifiers into
+which dynamic values are substituted.  Here, we've altered the "normalFieldTpl"
+attribute, putting a wrapper *<div/>* around it, and added a *<br/>* between the
+label and the widget (against our better judgement :).  We've kept the three
+identifiers in the original version: *$label*, *widget*, and *error* (these are
+the only three identifiers that *normalFieldTpl* can use).
+
+But did you notice that one field wasn't affected?  That's right, the hidden
+"user_id" field didn't get any of that extra markup we added.  That's because
+hidden fields don't get rendered with the, er, normal field template.  In many
+forms, things would probably work out fine if they did, but its possible to
+imagine situations in which the presence of hidden fields rendered like this
+would alter the appearance of the form (which hidden inputs, after all, are not
+supposed to do).  So hidden fields get rendered with another template:
+*bareFieldTpl*.  The *bareFieldTpl* attribute can take the same identifiers
+that *normalFieldTpl* does, but you typically won't want to even include label
+or errors; they aren't useful in this context (and the default value for
+*bareFieldTpl* in fact doesn't use them). 
+
+How does the form know that hidden fields get this special treatment?  Because
+the *renderer* attribute of hidden fields itself has an attribute called
+*renderBare* that is set to True.  I originally created this second rendering
+mode to deal with hidden fields, but its concievably useful in other contexts,
+such as for the insertion of static content, like instructions, midway through
+the form.
+
+We won't go through the other form template attributes, since they're pretty
+self explanatory.  Just note the contents of *labelTpl* and *errorTpl* have
+the potential to be ignored completely, if there's no label or no error message
+associated with a field when its rendered.  In those cases, those templates are
+replaced with the empty string.

@@ -58,9 +58,6 @@ class _TransformerBase:
             widget = copy.copy(validator)
 
         kw.update(self.defaultArgs)
-        print label
-        print args
-        print kw
         widget.renderer = self.widgetClass(*args, **kw)
 
 #       Set required attributes
@@ -76,7 +73,7 @@ PasswordInput = _TransformerBase(widgets.Input, defaultArgs={'type':'password'})
 ButtonInput = _TransformerBase(widgets.Input, defaultArgs={'type':'button'})
 ImageInput = _TransformerBase(widgets.Input, defaultArgs={'type':'image'})
 FileInput = _TransformerBase(widgets.Input, needsMultipart=True, defaultArgs={'type':'file'})
-TextArea = _TransformerBase(widgets.Textarea)
+Textarea = _TransformerBase(widgets.Textarea)
 HiddenInput = _TransformerBase(widgets.Input, renderBare=True, defaultArgs={'type':'hidden'})
 CheckboxInput = _TransformerBase(widgets.CheckboxInput)
 RadioInput = _TransformerBase(widgets.RadioInput)
