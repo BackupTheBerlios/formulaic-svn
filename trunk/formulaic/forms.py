@@ -365,6 +365,6 @@ class RequirementsForm(BaseForm):
         if not req:
             labelStr = Template(self.labelTpl).substitute(label=label)
         else:
-            labelTpl = Template(self.reqLabelTpl).substitute(label=label)
+            labelStr = Template(self.reqLabelTpl).substitute(label=label)
 
-        return template.substitute(label=labelStr, widget=widgetStr, error=errorStr).strip()
+        return Template(template).substitute(label=labelStr, widget=widgetStr, error=errorStr).strip()

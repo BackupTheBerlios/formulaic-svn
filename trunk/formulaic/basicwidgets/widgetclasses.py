@@ -49,10 +49,11 @@ class Input(Widget):
 
     defaultAttrs = {}
 
-    def __init__(self, type='text', attrs=None):
+    def __init__(self, type=None, attrs=None):
         self.attrs = copy.copy(self.defaultAttrs)
         attrs = attrs or {}
-        attrs['type'] = type
+        if type:
+            attrs['type'] = type
         self.attrs.update(attrs)
 
     def _render(self, name, value):
