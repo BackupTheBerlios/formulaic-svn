@@ -35,10 +35,10 @@ class BaseForm(OrderedDict):
     all forms (at least, all forms derived from BaseForm),
     set the class variables (i.e. "BaseForm.labelTpl"), and to customize one
     form instance, set the instance variables (i.e. "form.labelTpl").  These
-    templates are strings used to initialize python 2.4 string templates, with
-    the default "$" delimiter for template parameters.  Again, to be clear,
-    these template class variables are the strings used to create template
-    instances, I{not} template instances themselves.
+    templates are strings used to initialize python 2.4 string Templates, with
+    the default "$" delimiter for Template parameters.  Again, to be clear,
+    these template class variables are the strings used to create Template
+    instances, I{not} Template instances themselves.
 
     Fields are rendered by the I{renderField} method, and fields are rendered in
     one of two modes; "bare" mode is used if the field object has a "renderBare"
@@ -90,7 +90,7 @@ $fields
 $footer
 
 </form>''' 
-    footer = Template('<input type="submit" value="$submitLabel"/>')
+    footer = '<input type="submit" value="$submitLabel"/>'
 
 #   Settings for rendering each field
     labelTpl = '<label>$label</label>'
@@ -156,6 +156,44 @@ $error'''
             output.append('%s=%s' % (name, quoteattr(str(value))))
         return ' '.join(output)
 
+    def smartRender(self, values, errors):
+        """Like render, but doesn't display any errors if the form is being
+        viewed for the first time.
+
+        This method assumes that if formencode's conventions for using field
+        names to structure data are being used, that such processsing has
+        already been done to the values dict, and that all widgets implement
+        those conventions correctly.  Otherwise, the detection of whether the
+        form is being viewed for the first time may generate false positives.
+
+        @param values: a dict of values submitted by the user.  If formencode's
+        conventions for organizing inputs into lists and dicts are being used,
+        this processing should be done on the dict before this method is called,
+        since the method does not do such transformation itself.  @type values:
+        dict 
+        
+        @param errors: a dict of error messages generated during
+        validation.  Keys should match the current keys of this BaseForm
+        instance, and values should be objects that can be rendered into usable
+        error messages by the python str() function.  Typically, you will want
+        to pass the value of the I{error_dict} attribute of a formencode Invalid
+        exception raised by validating this form (when formencode schema objects
+        are unable to validate, the Invalid exception that is raised contains a
+        dict mapping the field name to other Invalid objects.  
+        
+        @return: the string rendering of the form
+
+        @rtype: str
+        """
+
+        submissionKeys = set(values.keys())
+        formKeys = set(self.keys())
+
+        if not submissionKeys.intersection(formKeys):
+            errors = {}
+
+        return self.render(values, errors)
+
     def render(self, values, errors):
         '''Render the entire form.  Typically, this will be called after
         validation of the submitted values has been attempted and has failed (if
@@ -166,7 +204,9 @@ $error'''
         conventions for organizing inputs into lists and dicts are being used,
         this processing should be done on the dict before this method is called,
         since the method does not do such transformation itself.  @type values:
-        dict @param errors: a dict of error messages generated during
+        dict 
+        
+        @param errors: a dict of error messages generated during
         validation.  Keys should match the current keys of this BaseForm
         instance, and values should be objects that can be rendered into usable
         error messages by the python str() function.  Typically, you will want
@@ -174,7 +214,9 @@ $error'''
         exception raised by validating this form (when formencode schema objects
         are unable to validate, the Invalid exception that is raised contains a
         dict mapping the field name to other Invalid objects.  
+        
         @return: the string rendering of the form
+
         @rtype: str'''
 
         renderedFields = []
@@ -188,7 +230,7 @@ $error'''
                 needsMultipart = True
 
 #       Render the submit button
-        renderedFields.append(self.renderFooter())
+        footer = self.renderFooter()
 
         # if any widgets require the form to use multipart encoding
         if needsMultipart: 
@@ -196,7 +238,7 @@ $error'''
 
         fields = self.fieldSeparator.join(renderedFields)
         formAttributes = self.renderAttributes(self.attrs)
-        return Template(self.formTpl).substitute(fields=fields, formAttributes=formAttributes)
+        return Template(self.formTpl).substitute(fields=fields, footer=footer, formAttributes=formAttributes)
 
     def renderField(self, name, value, error=None):
         '''Render the complete html of one of this form's fields
@@ -217,14 +259,14 @@ $error'''
         widgetStr = field.renderer(name, value)
 
         if getattr(field.renderer, 'renderBare', False):
-            template = self.normalFieldTpl
-        else:
-            template = self.bareFieldTpl
+            template = self.bareFieldTpl  # if this field should be rendered in bare mode
+        else: 
+            template = self.normalFieldTpl # if this field should be rendered in normal mode
         
         if error:
             errorStr = Template(self.errorTpl).substitute(error=error)
         else:
-            errorStr = ''
+            errorStr = '' # if there is no error message, nothing is inserted, not even an empty error message
 
         label = field.renderer.label
         if label is not None:
@@ -234,6 +276,9 @@ $error'''
 
         return Template(template).substitute(label=labelStr, widget=widgetStr, error=errorStr).strip()
 
+#   The footer isn't just included as part of the form template because this
+#   this makes it easier to make it look like other fields if BaseForm is customized
+#   or subclassed...
     def renderFooter(self):
         '''Render the footer (submit button) for the form
 
@@ -243,7 +288,8 @@ $error'''
         '''
         submitLabel = escape(self.submitLabel).replace('"', '&quot;')
         widgetStr = Template(self.footer).substitute(submitLabel=submitLabel)
-        return Template(self.normalFieldTpl).substitute(label='', widget=widgetStr, error='')
+        label = ''
+        return Template(self.normalFieldTpl).substitute(label=label, widget=widgetStr, error='').strip()
 
 class TableForm(BaseForm):
     '''A form that is rendered in a simple 3-column html table (label, widget, error)
@@ -304,4 +350,3 @@ class RequirementsForm(BaseForm):
             labelTpl = Template(self.reqLabelTpl).substitute(label=label)
 
         return template.substitute(label=labelStr, widget=widgetStr, error=errorStr).strip()
-

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-__all__ = ['forms', 'htmlwidgets']
+__all__ = ['forms', 'basicwidgets']
 
 __doc__  = '''
 A web form generation package designed to interoperate with U{FormEncode<http://formencode.org>}.

@@ -2,8 +2,9 @@
 
 import copy
 from xml.sax.saxutils import quoteattr, escape
+from string import Template
 
-__doc__ '''Implementation details for the htmlwidgets package.  Doesn't need to
+__doc__ = '''Implementation details for the htmlwidgets package.  Doesn't need to
 be accessed directly when using the provided widget functions, but possibly
 useful when writing your own widgets.'''
 
@@ -11,10 +12,6 @@ class Widget:
     "Abstract base class for widgets to inheirit from... handles labels, default values"
 
 #   A place to put extra information about how to render this widget
-
-    def __init__(self, label, default=None):
-        self.label = label
-        self.default = default
 
     @staticmethod
     def renderAttributes(attrs, **kwargs):
@@ -33,10 +30,11 @@ class Input(Widget):
 
     defaultAttrs = {}
 
-    def __init__(self, label, default=None, attrs=None):
-        Widget.__init__(self, label, default=default)
+    def __init__(self, type='text', attrs=None):
         self.attrs = copy.copy(self.defaultAttrs)
-        self.attrs.update(attrs or {})
+        attrs = attrs or {}
+        attrs['type'] = type
+        self.attrs.update(attrs)
 
     def _render(self, name, value):
         "Render this field into an html string"
@@ -45,12 +43,11 @@ class Input(Widget):
 class Custom(Widget):
     "A callable that returns a custom html string, intended for the creation of simple custom widgets"
 
-    def __init__(self, label, content, default=None):
-        Widget.__init__(self, label, default=default)
+    def __init__(self, content):
         self.content = content
 
     def _render(self, name, value):
-        return self.content % {'name':quoteattr(name), 'value':escape(value)}
+        return self.content.safe_substitute(name=quoteattr(name), value=escape(value))
 
 class CheckboxInput(Input):
     "A callable that renders html checkbox input elements"
@@ -80,14 +77,16 @@ class RadioInput(Input):
 
     defaultAttrs = {'type':'radio'}
 
-    def __init__(self, label, values, default=None, attrs=None, separator='\n'):
-        self.values = values
+    def __init__(self, options=None, attrs=None, separator='\n'):
+        if not options:
+            raise Exception('No options passed in creation of radio widget')
+        self.options = options
         self.separator = separator
-        Input.__init__(self, label, default=default, attrs=attrs)
+        Input.__init__(self, attrs=attrs)
 
     def _render(self, name, value):
         output = []
-        for choice in self.values:
+        for choice in self.options:
             if value != choice: # if this input is not selected
                 output.append('<input %s>%s</input>' %
                 (self.renderAttributes(self.attrs, name=name, value=choice),
@@ -100,12 +99,14 @@ class RadioInput(Input):
 class Select(Input):
     "A callable that renders an html select element, including its options."
 
-    def __init__(self, label, values, default=None, attrs=None, separator='\n'):
+    def __init__(self, options=None, attrs=None, separator='\n'):
 
-#       Values can be a dict or a list (or any iterable)... dicts are preferrred
-        self.values = values
+#       Options can be a dict or a list (or any iterable)... dicts are preferrred
+        if not options:
+            raise Exception('No options provided for select widget')
+        self.options = options
         self.separator = separator
-        Input.__init__(self, label, default=default, attrs=attrs)
+        Input.__init__(self, attrs=attrs)
 
     @staticmethod
     def __isSelected(item, selection):
@@ -122,14 +123,14 @@ class Select(Input):
 
     def _render(self, name, value):
         options = []
-        if hasattr(self.values, 'keys'): # if values was a dict
-            for label, item_value in sorted(self.values.items()):
+        if hasattr(self.options, 'keys'): # if options was a dict
+            for label, item_value in sorted(self.options.items()):
                 if self.__isSelected(item_value, value):
                     options.append('<option selected="selected" value=%s>%s</option>' % (quoteattr(label), escape(item_value)))
                 else:
                     options.append('<option value=%s>%s</option>' % (quoteattr(label), escape(item_value)))
-        else: # if values was a list
-            for item_value in self.values:
+        else: # if options was a list
+            for item_value in self.options:
                 if self.__isSelected(item_value, value):
                     options.append('<option selected="selected" value=%s>%s</option>' % (quoteattr(item_value), escape(item_value)))
                 else:

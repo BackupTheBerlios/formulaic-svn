@@ -1,0 +1,171 @@
+==========
+Formulaic
+==========
+----------------------------
+A python web form generator
+----------------------------
+
+Introduction
+=============
+
+Formulaic is a Python package for generating the html of web forms.  It is
+designed to interoperate closely with the excellent FormEncode
+(http://formencode.org) form validation framework.  Formulaic was written for
+use with a project built using the Cherrypy web framework, but is intended to be
+usable with other Python web frameworks too.
+
+Formulaic is not intended to be the One True form generation framework for
+Python.  That framework may someday exist, but formulaic is not it.  Formulaic
+instead is intended to be easily usable for common web development needs, and
+tries not to sacrifice usability for small increases in expressive power.  Its
+feature set currently includes support for error messages, default values,
+intelligent detection and rendering of required fields, and, above all,
+customization of the output html.
+
+This file provides a tutorial on formualic's use, as well as the beginnings of
+an API reference, but as always, the best guide to its use is the source itself.
+The code is really quite simple, and almost everything can be efficiently
+customized through subclassing.  Questions, suggestions, and death threats are
+welcome at greg.steffensen@gmail.com .
+
+Overview
+=============
+
+Formulaic is fundmentally concerned with I{rendering}.  To use formulaic, you
+basically create your form once, then render it whenever a user views that
+form in her browser.  Most of the work of creating a form, in turn, is in
+describing the various fields in the form.  Forms and fields are the two
+fundamental kinds of objects in the formulaic universe (note that this is
+slightly different from how FormEncode works; in FormEncode, forms (schemas) are just a
+special kind of field (validator)).
+
+So in formulaic, forms contain fields.  Specifically, forms act like I{ordered
+dictionaries} of fields, which means that they can be used like normal python
+dictionaries.  However, unlike normal python dictionaries, they keep track of
+the order in which elements are added.  This makes it easier for you to control
+in what order fields are shown when you render the form (don't worry, if you
+want to change this ordering you can... the short answer is to use "sequence"
+attribute).  Thus, to render itself, a form just renders its fields one-by-one,
+and then wraps this output in a form template.
+
+To simplify the use of formualic with FormEncode, field objects are actually
+just FormEncode validators, with an extra "renderer" attribute.  Form objects,
+in turn, contain a FormEncode schema, stored in the "schema" attribute.  Again,
+to reiterate, fields ARE validators, and forms CONTAIN schemas (we decided not
+to make forms actually be schemas to avoid some bugs involving recursion).
+Thus, if you have a field object "myfield", you can use all the formencode
+methods on it, such as "myfield.to_python(value)".  And if you have a form
+object "myform", you can call "myform.schema.to_python(values)".  Formulaic does
+not alter the behavior of the FormEncode code at all.  
+
+Formulaic uses one trick to provide clean integration of the form and schema
+objects.  FormEncode schemas store their validators in a "fields" attribute.  In
+a formulaic form, this attribute of the schema gets set to the form itself.  In
+other words, "myform.schema.fields" points to "myform" itself (a circular
+reference).  So if a field gets added to or deleted from the form, the field
+will also be added to or deleted from the validation process.
+
+Installation
+=============
+
+Formulaic has two dependencies: Python 2.4 (available at http://www.python.org)
+, and FormEncode (available at http://formencode.org).  It was built using
+FormEncode 0.22, but I expect that prior versions will work fine as well.  There
+are several ways to install FormEncode, but the canonical one is download,
+extract, "python setup.py install".
+
+Once Python and FormEncode are installed, formulaic may be installed by
+downloading, extracting, and running "python setup.py install".
+
+Formulaic was built for use with Cherrypy, but the examples in this tutorial can
+all be executed from the python interactive interpreter.  For an example of how
+to typically use formulaic with cherrypy, see the file "cherrypy_example.py" in
+the examples directory.
+
+Tutorial
+===========
+
+You can run all the code in this tutorial from the python interpreter, without
+setting up a web server.  For an example of how to use formulaic from within
+Cherrypy, see the "cherrypy_example.py" file in the "examples" directory.
+
+hello world
+--------------
+
+Lets jump right in.  The first thing to learn about formulaic is that validation
+and rendering completely separate activities.
+
+    >>> from formencode import validators
+    >>> from formulaic import forms
+    >>> from formulaic import basicwidgets as widgets
+    >>> form = forms.BaseForm()
+    >>> form['hello'] = widgets.TextInput(validators.MaxLength(5), 'Hello')
+    >>> values = {'hello':'world'}
+    >>> print form.smartRender(values, {})
+    <form action="" method="POST">
+
+    <label>Hello</label>
+    <input type="text" name="hello" value="world"/>
+
+    <input type="submit" value="Submit"/>
+
+    </form>
+    >>>
+
+Ok, what's going on?  We've created a very simple form that does some very
+simple validation.  That form has one field, stored at the 'hello' key.  In
+formulaic, a field's key becomes its name its rendered with in the form.  We've
+based that field on a FormEncode validator, one that checks whether its inputs
+have a length of 5 or less.  To create the field, we used the I{TextInput} field
+transformer function.  Like all the field transformer functions, I{TextInput}
+takes a validator object and a label, and returns a field object based on that
+validator.  The field object is basically a copy of the original validator (a
+real copy, not the original object), with one new attribute "renderer".  Once
+this field object is placed in the form, we use the form's I{smartRender} method
+to render the form.  This method takes two arguments: a dictionary of prefilled
+values for the various widgets, and a dictionary of error messages for the
+various widgets.
+
+Lets render again, with an error message this time.
+
+    >>> errors = {'hello':"Your mama"}
+    >>> print form.render(values, errors)
+    <form action="" method="POST">
+
+    <label>Hello</label>
+    <input type="text" name="hello" value="world"/>
+    <span class="error">Your mama</span>
+
+    <input type="submit" value="Submit"/>
+
+    </form>
+
+That's how formulaic gets its error messages.  Despite partial integration with
+FormEncode, it doesn't do any validation itself; whether the values for
+prefilling are valid or invalid has no effect on the rendering of error
+messages.  To get our error messages dynamically from FormEncode, we have to
+explicitly validate.
+
+    >>> from formencode.api import Invalid
+    >>> values = {'hello':'planet'}
+    >>> try:
+    ...     values = form.schema.to_python(values)
+    ... except Invalid, error:
+    ...     print form.render(values, error.error_dict)
+    ...
+    <form action="" method="POST">
+
+    <label>Hello</label>
+    <input type="text" name="hello" value="planet"/>
+    <span class="error">Enter a value less than 5 characters long</span>
+
+    <input type="submit" value="Submit"/>
+
+    </form>
+
+The code above is the canonical way for formulaic to be used.  The I{Invalid}
+exception raised when FormEncode validation fails has an I{error_dict} attribute
+that is a dict mapping field names to other I{Invalid} objects.  Those internal
+I{Invalid} objects render themselves into user-friendly strings. 
+
+Lets add another field.
